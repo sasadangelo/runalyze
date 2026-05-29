@@ -7,6 +7,7 @@ dependencies = [
   "pydantic-settings==2.7.1",
   "PyYAML==6.0.2",
   "garminconnect==0.3.3",
+  "sqlalchemy>=2.0.0",
 ]
 description = "RunAnalyze - A comprehensive running analytics and training management tool"
 keywords = ["running", "analytics", "training", "hrv", "vo2max", "garmin"]
@@ -67,3 +68,12 @@ skip-magic-trailing-comma = false
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+
+[tool.mypy]
+explicit_package_bases = true
+mypy_path = "src"
+namespace_packages = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = "garminconnect"

@@ -3,5 +3,3 @@ database:
     path: "data/garmin.db"
     echo: false
     pool_pre_ping: true
-
-# Made with Bob

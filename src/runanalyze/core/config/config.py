@@ -4,6 +4,7 @@ Reads database configuration from config.yaml file.
 """
 
 from pathlib import Path
+
 import yaml
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -12,13 +13,9 @@ from pydantic_settings import BaseSettings
 class SQLiteSettings(BaseSettings):
     """SQLite database configuration."""
 
-    path: str = Field(
-        default="data/garmin.db", description="Path to SQLite database file"
-    )
+    path: str = Field(default="data/garmin.db", description="Path to SQLite database file")
     echo: bool = Field(default=False, description="Enable SQL query logging")
-    pool_pre_ping: bool = Field(
-        default=True, description="Enable connection health checks"
-    )
+    pool_pre_ping: bool = Field(default=True, description="Enable connection health checks")
 
     @property
     def database_url(self) -> str:
@@ -41,6 +38,8 @@ class Settings(BaseSettings):
     """Main application settings."""
 
     database: DatabaseSettings = Field(default_factory=DatabaseSettings)
+    garmin_email: str = Field(default=..., description="Garmin Connect email (from env)")
+    garmin_password: str = Field(default=..., description="Garmin Connect password (from env)")
 
     class Config:
         """Pydantic configuration."""
@@ -62,9 +61,7 @@ def load_config_from_yaml(config_path: str | None = None) -> Settings:
         Settings object with loaded configuration.
     """
     config_file: Path = (
-        Path(__file__).parent.parent / "config.yaml"
-        if config_path is None
-        else Path(config_path)
+        Path(__file__).parent.parent.parent.parent / "config.yaml" if config_path is None else Path(config_path)
     )
 
     if not config_file.exists():

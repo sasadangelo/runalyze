@@ -5,11 +5,12 @@
       "name": "Python Debugger: Current File",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/update.py",
+      "program": "${workspaceFolder}/app.py",
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "env": {
-        "PYTHONPATH": "${workspaceFolder}"
+        "PYTHONPATH": "${workspaceFolder}",
+        "LOGLEVEL": "TRACE"
       }
     }
   ]
