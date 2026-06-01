@@ -8,6 +8,7 @@ dependencies = [
   "PyYAML==6.0.2",
   "garminconnect==0.3.3",
   "sqlalchemy>=2.0.0",
+  "loguru>=0.7.0",
 ]
 description = "RunAnalyze - A comprehensive running analytics and training management tool"
 keywords = ["running", "analytics", "training", "hrv", "vo2max", "garmin"]
@@ -77,3 +78,7 @@ namespace_packages = true
 [[tool.mypy.overrides]]
 ignore_missing_imports = true
 module = "garminconnect"
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = "loguru"

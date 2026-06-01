@@ -58,4 +58,4 @@ class DatabaseSessionManager:
 
 
 # Istanza globale del manager da importare nei service del modulo runanalyze
-db_manager = DatabaseSessionManager()
+db_manager: DatabaseSessionManager = DatabaseSessionManager()

@@ -3,3 +3,11 @@ database:
     path: "data/garmin.db"
     echo: false
     pool_pre_ping: true
+
+log:
+  level: "INFO"
+  console: true
+  file: "logs/runanalyze.log"
+  rotation: "10 MB"
+  retention: "7 days"
+  compression: "zip"

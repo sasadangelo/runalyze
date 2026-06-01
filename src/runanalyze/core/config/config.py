@@ -34,10 +34,22 @@ class DatabaseSettings(BaseSettings):
     sqlite: SQLiteSettings = Field(default_factory=SQLiteSettings)
 
 
+class LogSettings(BaseSettings):
+    """Logging configuration."""
+
+    level: str = Field(default="INFO", description="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
+    console: bool = Field(default=True, description="Enable console logging")
+    file: str | None = Field(default=None, description="Log file path (None to disable file logging)")
+    rotation: str = Field(default="10 MB", description="Log rotation size")
+    retention: str = Field(default="7 days", description="Log retention period")
+    compression: str = Field(default="zip", description="Compression format for rotated logs")
+
+
 class Settings(BaseSettings):
     """Main application settings."""
 
     database: DatabaseSettings = Field(default_factory=DatabaseSettings)
+    log: LogSettings = Field(default_factory=LogSettings)
     garmin_email: str = Field(default=..., description="Garmin Connect email (from env)")
     garmin_password: str = Field(default=..., description="Garmin Connect password (from env)")
 
