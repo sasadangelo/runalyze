@@ -1,0 +1,213 @@
+/* Workouts Page Specific Styles */
+
+.subtitle {
+    color: #666;
+    font-size: 1.1em;
+    margin-bottom: 30px;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2em;
+    color: #666;
+}
+
+.error {
+    background-color: #fee;
+    border: 1px solid #fcc;
+    color: #c33;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+/* Workouts Table */
+.workouts-table-container {
+    margin-top: 20px;
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.workouts-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95em;
+}
+
+.workouts-table thead {
+    background-color: #142e51;
+    color: white;
+}
+
+.workouts-table th {
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    letter-spacing: 0.5px;
+}
+
+.workouts-table tbody tr {
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.workouts-table tbody tr:hover {
+    background-color: #f5f8fa;
+}
+
+.workouts-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.workouts-table td {
+    padding: 12px;
+    color: #333;
+}
+
+.workouts-table td:first-child {
+    font-weight: 500;
+    color: #142e51;
+}
+
+.workout-name-cell {
+    font-weight: 600;
+    color: #142e51;
+}
+
+.workout-date-cell {
+    color: #666;
+    white-space: nowrap;
+}
+
+/* Back Button */
+.back-button {
+    background-color: #142e51;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-bottom: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #0d1f38;
+}
+
+/* Workout Detail Header */
+.workout-header {
+    margin-bottom: 30px;
+}
+
+.workout-header h1 {
+    color: #142e51;
+    margin-bottom: 10px;
+}
+
+.workout-date {
+    color: #666;
+    font-size: 1.1em;
+}
+
+/* Workout Stats Cards */
+.workout-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #142e51 0%, #1a3d6b 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+    font-size: 0.9em;
+    opacity: 0.9;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-value {
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+/* Charts Container */
+.charts-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+
+.chart-wrapper {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chart-wrapper h2 {
+    color: #142e51;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+}
+
+.chart-wrapper canvas {
+    max-height: 300px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .workout-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-value {
+        font-size: 1.4em;
+    }
+
+    .workouts-table {
+        font-size: 0.85em;
+    }
+
+    .workouts-table th,
+    .workouts-table td {
+        padding: 10px 8px;
+    }
+
+    .workouts-table th {
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 480px) {
+    .workout-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .workouts-table {
+        font-size: 0.75em;
+    }
+
+    .workouts-table th,
+    .workouts-table td {
+        padding: 8px 5px;
+    }
+}
+
+/* Made with Bob */

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activities - Salvatore D'Angelo Wellness</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .activities-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .activities-table th,
+        .activities-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .activities-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .activities-table tr:hover {
+            background-color: #f5f5f5;
+            cursor: pointer;
+        }
+
+        .activity-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .activity-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <div id="logo">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" width="120" height="120">
+            </div>
+            <nav id="social-nav">
+                <a href="#" target="_blank"><img src="{{ url_for('static', filename='img/facebook.png') }}"
+                        alt="Facebook"></a>
+                <a href="#" target="_blank"><img src="{{ url_for('static', filename='img/twitter.png') }}"
+                        alt="Twitter"></a>
+                <a href="#" target="_blank"><img src="{{ url_for('static', filename='img/instagram.png') }}"
+                        alt="Instagram"></a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container main">
+        <aside id="sidebar">
+            <ul>
+                <li><a href="{{ url_for('activities.index') }}">Overview</a></li>
+                <li><a href="{{ url_for('activities.activities_list') }}" class="active">Activities</a></li>
+                <li><a href="#">Training</a></li>
+                <li><a href="#">Health</a></li>
+                <li><a href="#">Weight Management</a></li>
+                <li><a href="#">Calculators</a></li>
+            </ul>
+        </aside>
+        <main id="content">
+            <h1>Activities</h1>
+
+            {% if activities %}
+            <table class="activities-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Nome Attività</th>
+                        <th>Distanza (km)</th>
+                        <th>Tempo</th>
+                        <th>Passo Medio</th>
+                        <th>FC Media</th>
+                        <th>Calorie</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity in activities %}
+                    <tr class="activity-row"
+                        data-url="{{ url_for('activities.activity_detail', activity_id=activity.id) }}">
+                        <td>{{ activity.start_time }}</td>
+                        <td><a href="{{ url_for('activities.activity_detail', activity_id=activity.id) }}"
+                                class="activity-link">{{
+                                activity.name }}</a></td>
+                        <td>{{ activity.distance_km }}</td>
+                        <td>{{ activity.duration }}</td>
+                        <td>{{ activity.pace }} min/km</td>
+                        <td>{{ activity.avg_hr }} bpm</td>
+                        <td>{{ activity.calories }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>Nessuna attività trovata.</p>
+            {% endif %}
+        </main>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Salvatore D'Angelo Wellness. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Add click handlers to activity rows
+        document.addEventListener('DOMContentLoaded', function () {
+            const rows = document.querySelectorAll('.activity-row');
+            rows.forEach(row => {
+                row.addEventListener('click', function (e) {
+                    // Don't navigate if clicking on a link
+                    if (e.target.tagName !== 'A') {
+                        window.location.href = this.dataset.url;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

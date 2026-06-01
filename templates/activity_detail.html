@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ activity.name }} - Salvatore D'Angelo Wellness</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .activity-details {
+            margin-top: 20px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 3px;
+            font-size: 0.85em;
+        }
+
+        .detail-value {
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .chart-container {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <div id="logo">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" width="120" height="120">
+            </div>
+            <nav id="social-nav">
+                <a href="#" target="_blank"><img src="{{ url_for('static', filename='img/facebook.png') }}"
+                        alt="Facebook"></a>
+                <a href="#" target="_blank"><img src="{{ url_for('static', filename='img/twitter.png') }}"
+                        alt="Twitter"></a>
+                <a href="#" target="_blank"><img src="{{ url_for('static', filename='img/instagram.png') }}"
+                        alt="Instagram"></a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container main">
+        <aside id="sidebar">
+            <ul>
+                <li><a href="{{ url_for('activities.index') }}">Overview</a></li>
+                <li><a href="{{ url_for('activities.activities_list') }}" class="active">Activities</a></li>
+                <li><a href="#">Training</a></li>
+                <li><a href="#">Health</a></li>
+                <li><a href="#">Weight Management</a></li>
+                <li><a href="#">Calculators</a></li>
+            </ul>
+        </aside>
+        <main id="content">
+            <a href="{{ url_for('activities.activities_list') }}" class="back-link">← Torna alle attività</a>
+
+            <h1>{{ activity.name }}</h1>
+
+            <div class="activity-details">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Data</div>
+                        <div class="detail-value">{{ activity.start_time }}</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Distanza</div>
+                        <div class="detail-value">{{ activity.distance_km }} km</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Tempo</div>
+                        <div class="detail-value">{{ activity.duration }}</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Passo Medio</div>
+                        <div class="detail-value">{{ activity.pace }} min/km</div>
+                    </div>
+
+                    {% if activity.avg_hr %}
+                    <div class="detail-item">
+                        <div class="detail-label">FC Media</div>
+                        <div class="detail-value">{{ activity.avg_hr }} bpm</div>
+                    </div>
+                    {% endif %}
+
+                    {% if activity.max_hr %}
+                    <div class="detail-item">
+                        <div class="detail-label">FC Massima</div>
+                        <div class="detail-value">{{ activity.max_hr }} bpm</div>
+                    </div>
+                    {% endif %}
+
+                    <div class="detail-item">
+                        <div class="detail-label">Calorie</div>
+                        <div class="detail-value">{{ activity.calories }}</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Velocità Media</div>
+                        <div class="detail-value">{{ "%.2f"|format(activity.avg_speed_m_s * 3.6) }} km/h</div>
+                    </div>
+                </div>
+
+                {% if samples %}
+                <div class="chart-container">
+                    <h2>Frequenza Cardiaca</h2>
+                    <canvas id="hrChart" width="800" height="300"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h2>Passo (min/km)</h2>
+                    <canvas id="paceChart" width="800" height="300"></canvas>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Salvatore D'Angelo Wellness. All rights reserved.</p>
+        </div>
+    </footer>
+
+    {% if samples %}
+    <script type="application/json" id="samples-data">
+        {{ samples | tojson | safe }}
+    </script>
+    <script>
+        // Dati dei samples
+        const samplesData = JSON.parse(document.getElementById('samples-data').textContent);
+
+        // Prepara i dati per i grafici
+        const timestamps = samplesData.map((s, i) => i); // Usa l'indice come timestamp semplificato
+        const heartRates = samplesData.map(s => s.heart_rate);
+        const paces = samplesData.map(s => s.pace_min_per_km);
+
+        // Grafico Frequenza Cardiaca
+        const hrCtx = document.getElementById('hrChart').getContext('2d');
+        new Chart(hrCtx, {
+            type: 'line',
+            data: {
+                labels: timestamps,
+                datasets: [{
+                    label: 'Frequenza Cardiaca (bpm)',
+                    data: heartRates,
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    tension: 0.1,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        display: false
+                    },
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'bpm'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Grafico Passo
+        const paceCtx = document.getElementById('paceChart').getContext('2d');
+        new Chart(paceCtx, {
+            type: 'line',
+            data: {
+                labels: timestamps,
+                datasets: [{
+                    label: 'Passo (min/km)',
+                    data: paces,
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    tension: 0.1,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        display: false
+                    },
+                    y: {
+                        reverse: true, // Inverti l'asse Y perché un passo più basso è migliore
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'min/km'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+
+</html>
