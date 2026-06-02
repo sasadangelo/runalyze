@@ -1,0 +1,12 @@
+<aside id="sidebar">
+    <ul>
+        <li><a href="{{ url_for('activities.index') }}" {% if active_page=='overview' %}class="active" {% endif
+                %}>Overview</a></li>
+        <li><a href="{{ url_for('activities.activities_list') }}" {% if active_page=='activities' %}class="active" {%
+                endif %}>Activities</a></li>
+        <li><a href="#">Training</a></li>
+        <li><a href="#">Health</a></li>
+        <li><a href="#">Weight Management</a></li>
+        <li><a href="#">Calculators</a></li>
+    </ul>
+</aside>

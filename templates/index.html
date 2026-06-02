@@ -1,66 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Salvatore D'Angelo Wellness Overview</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-  <script type="module" src="{{ url_for('static', filename='js/overview.js') }}" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.0.0"></script>
-</head>
+{% block title %}Salvatore D'Angelo Wellness Overview{% endblock %}
 
-<body>
-  <header>
-    <div class="container">
-      <div id="logo">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" width="120" height="120">
-      </div>
-      <nav id="social-nav">
-        <a href="#" target="_blank"><img src="{{ url_for('static', filename='img/facebook.png') }}" alt="Facebook"></a>
-        <a href="#" target="_blank"><img src="{{ url_for('static', filename='img/twitter.png') }}" alt="Twitter"></a>
-        <a href="#" target="_blank"><img src="{{ url_for('static', filename='img/instagram.png') }}"
-            alt="Instagram"></a>
-      </nav>
-    </div>
-  </header>
+{% block extra_head %}
+<script type="module" src="{{ url_for('static', filename='js/overview.js') }}" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.0.0"></script>
+{% endblock %}
 
-  <div class="container main">
-    <aside id="sidebar">
-      <ul>
-        <li><a href="{{ url_for('activities.index') }}">Overview</a></li>
-        <li><a href="{{ url_for('activities.activities_list') }}">Activities</a></li>
-        <li><a href="#">Training</a></li>
-        <li><a href="#">Health</a></li>
-        <li><a href="#">Weight Management</a></li>
-        <li><a href="#">Calculators</a></li>
-      </ul>
-    </aside>
-    <main id="content">
-      <h1>Salvatore D'Angelo Wellness</h1>
-      <div>
-        <label for="startDate">Start Date:</label>
-        <input type="date" id="startDate">
-        <label for="endDate">End Date:</label>
-        <input type="date" id="endDate">
-        <button onclick="window.hrvApp.updateChart();window.fcrApp.updateChart();window.tssApp.updateChart();">Update
-          Chart</button>
-      </div>
-      <canvas id="hrvChart" width="800" height="200"></canvas>
-      <br />
-      <canvas id="fcrChart" width="800" height="200"></canvas>
-      <br />
-      <canvas id="tssChart" width="800" height="200"></canvas>
-    </main>
-  </div>
+{% set active_page = 'overview' %}
 
-  <footer>
-    <div class="container">
-      <p>&copy; 2024 Salvatore D'Angelo Wellness. All rights reserved.</p>
-    </div>
-  </footer>
-</body>
-
-</html>
+{% block content %}
+<h1>Salvatore D'Angelo Wellness</h1>
+<div>
+  <label for="startDate">Start Date:</label>
+  <input type="date" id="startDate">
+  <label for="endDate">End Date:</label>
+  <input type="date" id="endDate">
+  <button onclick="window.hrvApp.updateChart();window.fcrApp.updateChart();window.tssApp.updateChart();">Update
+    Chart</button>
+</div>
+<canvas id="hrvChart" width="800" height="200"></canvas>
+<br />
+<canvas id="fcrChart" width="800" height="200"></canvas>
+<br />
+<canvas id="tssChart" width="800" height="200"></canvas>
+{% endblock %}
