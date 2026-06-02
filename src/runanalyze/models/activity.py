@@ -21,6 +21,10 @@ class ActivityDAO(Base):
     calories = Column(Float, nullable=False)
     avg_speed_m_s = Column(Float, nullable=False)
 
+    # Metriche di allenamento
+    tss = Column(Float, nullable=True)  # Training Stress Score (arrotondato a intero)
+    vo2max = Column(Float, nullable=True)  # VO2max (arrotondato a 1 decimale)
+
     # Relazione con i dettagli secondo per secondo
     samples = relationship(
         "ActivitySampleDAO", back_populates="activity", cascade="all, delete-orphan", passive_deletes=True

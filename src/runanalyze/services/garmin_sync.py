@@ -61,6 +61,13 @@ class GarminSyncService:
                     continue
 
                 # Creazione record principale tramite DAO
+                # Arrotonda TSS a intero e VO2max a 1 cifra decimale
+                tss_value = act.get("activityTrainingLoad")
+                tss = round(tss_value) if tss_value is not None else None
+
+                vo2max_value = act.get("vO2MaxValue")
+                vo2max = round(vo2max_value, 1) if vo2max_value is not None else None
+
                 new_activity = ActivityDAO(
                     id=activity_id,
                     name=activity_name,
@@ -71,6 +78,8 @@ class GarminSyncService:
                     max_hr=act.get("maxHR"),
                     calories=act.get("calories", 0.0),
                     avg_speed_m_s=act.get("averageSpeed", 0.0),
+                    tss=tss,  # Training Stress Score (arrotondato a intero)
+                    vo2max=vo2max,  # VO2max (arrotondato a 1 decimale)
                 )
                 session.add(new_activity)
                 self.logger.debug(f"Added activity {activity_id} to session")
