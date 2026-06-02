@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Salvatore D'Angelo Wellness Overview{% endblock %}
+
+{% block content %}
+<h1>Salvatore D'Angelo Wellness</h1>
+<div>
+    <label for="startDate">Start Date:</label>
+    <input type="date" id="startDate">
+    <label for="endDate">End Date:</label>
+    <input type="date" id="endDate">
+    <button onclick="updateOverviewCharts()">Update Chart</button>
+</div>
+<canvas id="hrvChart" width="800" height="200"></canvas>
+<br />
+<canvas id="fcrChart" width="800" height="200"></canvas>
+<br />
+<canvas id="tssChart" width="800" height="200"></canvas>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.0.0"></script>
+<script type="module" src="{{ url_for('static', filename='js/overview.js') }}"></script>
+<script>
+    function updateOverviewCharts() {
+        if (window.hrvApp) window.hrvApp.updateChart();
+        if (window.fcrApp) window.fcrApp.updateChart();
+        if (window.tssApp) window.tssApp.updateChart();
+    }
+</script>
+{% endblock %}

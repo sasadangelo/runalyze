@@ -8,10 +8,12 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 from flask import Flask
 
 from runanalyze.routes import activity_bp
+from runanalyze.routes.dashboard_routes import dashboard_bp
 
 app = Flask(import_name=__name__)
 
 # Register blueprints
+app.register_blueprint(blueprint=dashboard_bp)
 app.register_blueprint(blueprint=activity_bp)
 
 if __name__ == "__main__":

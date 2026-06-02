@@ -1,5 +1,4 @@
 import { HRVChart } from './hrv-chart.js';
-import { Data } from './data.js';
 import { DataUtils } from './data-utils.js';
 
 export class HRVApp {
@@ -7,37 +6,51 @@ export class HRVApp {
         this.allData = [];
         this.chart = new HRVChart(document.getElementById('hrvChart').getContext('2d'));
 
-        Papa.parse('./data/hrv_data.csv', {
-            download: true,
-            header: true,
-            complete: results => {
-                this.allData = new Data(results.data);
-                this.setDefaultDates();
-                this.processData();
-            }
-        });
+        // Set default dates
+        this.setDefaultDates();
+
+        // Load data from API
+        this.loadData();
 
         document.getElementById('startDate').addEventListener('change', () => this.processData());
         document.getElementById('endDate').addEventListener('change', () => this.processData());
     }
 
     setDefaultDates() {
-        const today = new Date().toISOString().split('T')[0];
-        const pastDate = new Date();
-        pastDate.setDate(pastDate.getDate() - 90);
-        const defaultStartDate = pastDate.toISOString().split('T')[0];
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 1);
 
-        document.getElementById('startDate').value = defaultStartDate;
-        document.getElementById('endDate').value = today;
+        document.getElementById('startDate').valueAsDate = startDate;
+        document.getElementById('endDate').valueAsDate = endDate;
+    }
+
+    async loadData() {
+        try {
+            // Fetch all HRV data without date filters to get complete dataset
+            const response = await fetch('/api/hrv');
+            const data = await response.json();
+
+            this.allData = data.map(item => ({
+                date: item.date,
+                rmssd: item.hrv
+            }));
+
+            this.processData();
+        } catch (error) {
+            console.error('Error loading HRV data:', error);
+        }
     }
 
     processData() {
+        if (this.allData.length === 0) return;
+
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
 
         // Calcola i valori per l'intera serie storica
-        const allDates = this.allData.data.map(row => row.date);
-        const allRmssdValues = this.allData.data.map(row => parseFloat(row.rmssd));
+        const allDates = this.allData.map(row => row.date);
+        const allRmssdValues = this.allData.map(row => parseFloat(row.rmssd));
 
         const utils = new DataUtils(allRmssdValues);
         const allMovingAvg7 = utils.movingAverage(7);
@@ -61,7 +74,11 @@ export class HRVApp {
         const maxValue = Math.ceil(Math.max(...allRmssdValues, ...validAllUpperLimits) / 5) * 5;
 
         // Filtra i dati per il range di date specificato
-        const filteredData = this.allData.filterByDateRange(startDate, endDate);
+        const filteredData = this.allData.filter(row => {
+            const date = new Date(row.date);
+            return date >= new Date(startDate) && date <= new Date(endDate);
+        });
+
         const filteredDates = filteredData.map(row => row.date);
         const filteredRmssdValues = filteredData.map(row => parseFloat(row.rmssd));
 
@@ -81,3 +98,5 @@ export class HRVApp {
         this.processData();
     }
 }
+
+// Made with Bob

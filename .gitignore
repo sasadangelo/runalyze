@@ -1,4 +1,6 @@
 **/__pycache__
-venv
+.venv
 .env
 logs/
+.ruff_cache
+.mypy_cache/

@@ -12,12 +12,6 @@ from runanalyze.controllers.activity_controller import ActivityController
 activity_bp = Blueprint("activities", __name__)
 
 
-@activity_bp.route("/")
-def index():
-    """Home page - Overview"""
-    return ActivityController.index()
-
-
 @activity_bp.route("/activities")
 def activities_list():
     """Lista di tutte le attività"""

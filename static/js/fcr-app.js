@@ -1,4 +1,3 @@
-import { Data } from './data.js';
 import { FCRChart } from './fcr-chart.js';
 import { DataUtils } from './data-utils.js';
 
@@ -7,37 +6,51 @@ export class FCRApp {
         this.allData = [];
         this.chart = new FCRChart(document.getElementById('fcrChart').getContext('2d'));
 
-        Papa.parse('./data/fcr_data.csv', {
-            download: true,
-            header: true,
-            complete: results => {
-                this.allData = new Data(results.data);
-                this.setDefaultDates();
-                this.processData();
-            }
-        });
+        // Set default dates
+        this.setDefaultDates();
+
+        // Load data from API
+        this.loadData();
 
         document.getElementById('startDate').addEventListener('change', () => this.processData());
         document.getElementById('endDate').addEventListener('change', () => this.processData());
     }
 
     setDefaultDates() {
-        const today = new Date().toISOString().split('T')[0];
-        const pastDate = new Date();
-        pastDate.setDate(pastDate.getDate() - 90);
-        const defaultStartDate = pastDate.toISOString().split('T')[0];
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 1);
 
-        document.getElementById('startDate').value = defaultStartDate;
-        document.getElementById('endDate').value = today;
+        document.getElementById('startDate').valueAsDate = startDate;
+        document.getElementById('endDate').valueAsDate = endDate;
+    }
+
+    async loadData() {
+        try {
+            // Fetch all resting HR data without date filters to get complete dataset
+            const response = await fetch('/api/resting-hr');
+            const data = await response.json();
+
+            this.allData = data.map(item => ({
+                date: item.date,
+                fcr: item.resting_hr
+            }));
+
+            this.processData();
+        } catch (error) {
+            console.error('Error loading resting HR data:', error);
+        }
     }
 
     processData() {
+        if (this.allData.length === 0) return;
+
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
 
         // Calcola i valori per l'intera serie storica
-        const allDates = this.allData.data.map(row => row.date);
-        const allFcrValues = this.allData.data.map(row => parseFloat(row.fcr));
+        const allDates = this.allData.map(row => row.date);
+        const allFcrValues = this.allData.map(row => parseFloat(row.fcr));
 
         const utils = new DataUtils(allFcrValues);
         const allMovingAvg7 = utils.movingAverage(7);
@@ -61,7 +74,11 @@ export class FCRApp {
         const maxValue = Math.ceil(Math.max(...allFcrValues, ...validAllUpperLimits) / 5) * 5;
 
         // Filtra i dati per il range di date specificato
-        const filteredData = this.allData.filterByDateRange(startDate, endDate);
+        const filteredData = this.allData.filter(row => {
+            const date = new Date(row.date);
+            return date >= new Date(startDate) && date <= new Date(endDate);
+        });
+
         const filteredDates = filteredData.map(row => row.date);
         const filteredFcrValues = filteredData.map(row => parseFloat(row.fcr));
 
@@ -81,3 +98,5 @@ export class FCRApp {
         this.processData();
     }
 }
+
+// Made with Bob

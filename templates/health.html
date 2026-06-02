@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Salvatore D'Angelo Wellness - Health{% endblock %}
+
+{% block content %}
+<h1>Health Metrics</h1>
+<div>
+    <label for="startDate">Start Date:</label>
+    <input type="date" id="startDate">
+    <label for="endDate">End Date:</label>
+    <input type="date" id="endDate">
+    <button onclick="updateHealthCharts()">Update Chart</button>
+</div>
+<canvas id="hrvChart" width="800" height="200"></canvas>
+<br />
+<canvas id="fcrChart" width="800" height="200"></canvas>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.0.0"></script>
+<script type="module" src="{{ url_for('static', filename='js/health.js') }}"></script>
+<script>
+    function updateHealthCharts() {
+        if (window.hrvApp) window.hrvApp.updateChart();
+        if (window.fcrApp) window.fcrApp.updateChart();
+    }
+</script>
+{% endblock %}

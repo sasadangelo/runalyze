@@ -1,5 +1,4 @@
 import { TSSChart } from './tss-chart.js';
-import { Data } from './data.js';
 import { DataUtils } from './data-utils.js';
 
 export class TSSApp {
@@ -7,36 +6,54 @@ export class TSSApp {
         this.allData = [];
         this.chart = new TSSChart(document.getElementById('tssChart').getContext('2d'));
 
-        Papa.parse('./data/training_data.csv', {
-            download: true,
-            header: true,
-            complete: results => {
-                this.allData = new Data(results.data);
-                this.setDefaultDates();
-                this.processData();
-            }
-        });
+        // Set default dates
+        this.setDefaultDates();
+
+        // Load data from API
+        this.loadData();
 
         document.getElementById('startDate').addEventListener('change', () => this.processData());
         document.getElementById('endDate').addEventListener('change', () => this.processData());
     }
 
     setDefaultDates() {
-        const today = new Date().toISOString().split('T')[0];
-        const pastDate = new Date();
-        pastDate.setDate(pastDate.getDate() - 90);
-        const defaultStartDate = pastDate.toISOString().split('T')[0];
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 1);
 
-        document.getElementById('startDate').value = defaultStartDate;
-        document.getElementById('endDate').value = today;
+        document.getElementById('startDate').valueAsDate = startDate;
+        document.getElementById('endDate').valueAsDate = endDate;
+    }
+
+    async loadData() {
+        try {
+            // Fetch all training data without date filters to get complete dataset
+            const response = await fetch('/api/training');
+            const data = await response.json();
+
+            this.allData = data.map(item => ({
+                date: item.date,
+                tss: item.tss || 0
+            }));
+
+            this.processData();
+        } catch (error) {
+            console.error('Error loading training data:', error);
+        }
     }
 
     processData() {
+        if (this.allData.length === 0) return;
+
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
 
         // Filtra i dati per il range di date specificato
-        const filteredData = this.allData.filterByDateRange(startDate, endDate);
+        const filteredData = this.allData.filter(row => {
+            const date = new Date(row.date);
+            return date >= new Date(startDate) && date <= new Date(endDate);
+        });
+
         const filteredDates = filteredData.map(row => row.date);
         const filteredTssValues = filteredData.map(row => parseFloat(row.tss));
 
@@ -51,3 +68,5 @@ export class TSSApp {
         this.processData();
     }
 }
+
+// Made with Bob

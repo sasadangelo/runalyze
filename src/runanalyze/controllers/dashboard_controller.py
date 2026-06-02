@@ -1,0 +1,76 @@
+# -----------------------------------------------------------------------------
+# Copyright (c) 2025 Salvatore D'Angelo, Code4Projects
+# Licensed under the MIT License. See LICENSE.md for details.
+# -----------------------------------------------------------------------------
+"""Controller for dashboard pages."""
+
+from flask import jsonify, render_template, request
+
+from runanalyze.services.activity_service import ActivityService
+from runanalyze.services.daily_metrics_service import DailyMetricsService
+
+
+class DashboardController:
+    """Controller for handling dashboard-related requests."""
+
+    @staticmethod
+    def overview():
+        """Render the overview dashboard page."""
+        return render_template("overview.html")
+
+    @staticmethod
+    def training():
+        """Render the training dashboard page."""
+        return render_template("training.html")
+
+    @staticmethod
+    def health():
+        """Render the health dashboard page."""
+        return render_template("health.html")
+
+    @staticmethod
+    def workouts():
+        """Render the workouts list page."""
+        activities = ActivityService.get_all_activities()
+        return render_template("workouts.html", activities=activities)
+
+    @staticmethod
+    def get_hrv_data():
+        """API endpoint to get HRV data."""
+        start_date = request.args.get("start_date")
+        end_date = request.args.get("end_date")
+        data = DailyMetricsService.get_hrv_data(start_date, end_date)
+        return jsonify(data)
+
+    @staticmethod
+    def get_resting_hr_data():
+        """API endpoint to get resting heart rate data."""
+        start_date = request.args.get("start_date")
+        end_date = request.args.get("end_date")
+        data = DailyMetricsService.get_resting_hr_data(start_date, end_date)
+        return jsonify(data)
+
+    @staticmethod
+    def get_vo2max_data():
+        """API endpoint to get VO2max data."""
+        start_date = request.args.get("start_date")
+        end_date = request.args.get("end_date")
+        data = DailyMetricsService.get_vo2max_data(start_date, end_date)
+        return jsonify(data)
+
+    @staticmethod
+    def get_training_data():
+        """API endpoint to get training data (TSS, distance, duration)."""
+        start_date = request.args.get("start_date")
+        end_date = request.args.get("end_date")
+        data = DailyMetricsService.get_training_data(start_date, end_date)
+        return jsonify(data)
+
+    @staticmethod
+    def get_latest_metrics():
+        """API endpoint to get latest metrics for overview."""
+        data = DailyMetricsService.get_latest_metrics()
+        return jsonify(data)
+
+
+# Made with Bob
