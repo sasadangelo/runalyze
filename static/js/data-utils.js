@@ -29,4 +29,32 @@ export class DataUtils {
             return Math.round(new DataUtils(window).standardDeviation());
         });
     }
+
+    static setDefaultDates(daysBack = 30) {
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+
+        if (!startDateInput || !endDateInput) {
+            console.error('Date input fields not found in DOM');
+            return false;
+        }
+
+        const endDate = new Date();
+        const startDate = new Date();
+
+        if (daysBack > 60) {
+            // For longer periods (90 days), use setDate
+            startDate.setDate(startDate.getDate() - daysBack);
+            startDateInput.value = startDate.toISOString().split('T')[0];
+            endDateInput.value = endDate.toISOString().split('T')[0];
+        } else {
+            // For shorter periods (30 days), use setMonth
+            const monthsBack = Math.ceil(daysBack / 30);
+            startDate.setMonth(startDate.getMonth() - monthsBack);
+            startDateInput.valueAsDate = startDate;
+            endDateInput.valueAsDate = endDate;
+        }
+
+        return true;
+    }
 }

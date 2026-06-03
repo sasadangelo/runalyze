@@ -13,6 +13,7 @@ class ActivityDAO(Base):
 
     id = Column(BigInteger, primary_key=True)  # ID di Garmin Connect
     name = Column(String(length=120), nullable=False)
+    activity_type = Column(String(length=50), nullable=True)  # Tipo di attività (running, walking, cycling, etc.)
     start_time = Column(String(length=50), nullable=False)
     duration_secs = Column(Float, nullable=False)
     distance_meters = Column(Float, nullable=False)

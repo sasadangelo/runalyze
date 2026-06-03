@@ -63,7 +63,8 @@ class DashboardController:
         """API endpoint to get training data (TSS, distance, duration)."""
         start_date = request.args.get("start_date")
         end_date = request.args.get("end_date")
-        data = DailyMetricsService.get_training_data(start_date, end_date)
+        activity_type = request.args.get("activity_type")
+        data = DailyMetricsService.get_training_data(start_date, end_date, activity_type)
         return jsonify(data)
 
     @staticmethod

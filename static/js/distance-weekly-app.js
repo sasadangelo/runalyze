@@ -5,23 +5,33 @@ export class DistanceWeeklyApp {
         this.allData = [];
         this.chart = new DistanceWeeklyChart(document.getElementById('distanceWeeklyChart').getContext('2d'));
 
-        Papa.parse('./data/training_data.csv', {
-            download: true,
-            header: true,
-            complete: results => {
-                this.allData = results.data.map(d => ({
-                    date: new Date(d.date),
-                    distance: parseFloat(d.distance)
-                }));
-                this.processData();
-            }
-        });
+        // Load data from API
+        this.loadData();
 
         document.getElementById('startDate').addEventListener('change', () => this.processData());
         document.getElementById('endDate').addEventListener('change', () => this.processData());
     }
 
+    async loadData() {
+        try {
+            // Fetch all training data without date filters to get complete dataset
+            const response = await fetch('/api/training');
+            const data = await response.json();
+
+            this.allData = data.map(item => ({
+                date: new Date(item.date),
+                distance: parseFloat(item.distance) || 0
+            }));
+
+            this.processData();
+        } catch (error) {
+            console.error('Error loading training data for Distance Weekly:', error);
+        }
+    }
+
     processData() {
+        if (this.allData.length === 0) return;
+
         const startDate = new Date(document.getElementById('startDate').value);
         const endDate = new Date(document.getElementById('endDate').value);
 

@@ -113,19 +113,25 @@ class DailyMetricsService:
             ]
 
     @staticmethod
-    def get_training_data(start_date: str | None = None, end_date: str | None = None) -> list[dict]:
+    def get_training_data(
+        start_date: str | None = None, end_date: str | None = None, activity_type: str | None = None
+    ) -> list[dict]:
         """
         Retrieve training data (TSS, distance, duration) from activities within date range.
 
         Args:
             start_date: Start date in YYYY-MM-DD format (optional)
             end_date: End date in YYYY-MM-DD format (optional)
+            activity_type: Activity type to filter (e.g., 'running', 'walking', 'cycling') (optional)
 
         Returns:
             List of dictionaries with date and training metrics
         """
         with db_manager.get_session() as session:
             query = session.query(ActivityDAO)
+
+            if activity_type:
+                query = query.filter(ActivityDAO.activity_type == activity_type)
 
             if start_date:
                 query = query.filter(ActivityDAO.start_time >= start_date)

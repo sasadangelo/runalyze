@@ -5,23 +5,11 @@ export class DistanceApp {
         this.allData = [];
         this.chart = new DistanceChart(document.getElementById('distanceChart').getContext('2d'));
 
-        // Set default dates
-        this.setDefaultDates();
-
         // Load data from API
         this.loadData();
 
         document.getElementById('startDate').addEventListener('change', () => this.processData());
         document.getElementById('endDate').addEventListener('change', () => this.processData());
-    }
-
-    setDefaultDates() {
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setMonth(startDate.getMonth() - 1);
-
-        document.getElementById('startDate').valueAsDate = startDate;
-        document.getElementById('endDate').valueAsDate = endDate;
     }
 
     async loadData() {

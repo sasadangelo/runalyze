@@ -71,6 +71,7 @@ class GarminSyncService:
                 new_activity = ActivityDAO(
                     id=activity_id,
                     name=activity_name,
+                    activity_type=act.get("activityType", {}).get("typeKey"),  # Tipo di attività
                     start_time=start_time,
                     duration_secs=act.get("duration", 0.0),
                     distance_meters=act.get("distance", 0.0),

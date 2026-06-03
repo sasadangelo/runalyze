@@ -16,14 +16,8 @@
 <canvas id="fcrChart" width="800" height="200"></canvas>
 {% endblock %}
 
-{% block extra_js %}
+{% block extra_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.0.0"></script>
 <script type="module" src="{{ url_for('static', filename='js/health.js') }}"></script>
-<script>
-    function updateHealthCharts() {
-        if (window.hrvApp) window.hrvApp.updateChart();
-        if (window.fcrApp) window.fcrApp.updateChart();
-    }
-</script>
 {% endblock %}

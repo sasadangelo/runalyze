@@ -30,24 +30,11 @@
 <canvas id="vo2maxChart" width="800" height="300"></canvas>
 {% endblock %}
 
-{% block extra_js %}
+{% block extra_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.0.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 <script type="module" src="{{ url_for('static', filename='js/training.js') }}"></script>
-<script>
-    function updateAllCharts() {
-        if (window.pmcApp) window.pmcApp.updateChart();
-        if (window.tssApp) window.tssApp.updateChart();
-        if (window.distanceApp) window.distanceApp.updateChart();
-        if (window.durationApp) window.durationApp.updateChart();
-        if (window.tssWeeklyApp) window.tssWeeklyApp.updateChart();
-        if (window.tlApp) window.tlApp.updateChart();
-        if (window.distanceWeeklyApp) window.distanceWeeklyApp.updateChart();
-        if (window.durationWeeklyApp) window.durationWeeklyApp.updateChart();
-        if (window.vo2maxApp) window.vo2maxApp.updateChart();
-    }
-</script>
 {% endblock %}
