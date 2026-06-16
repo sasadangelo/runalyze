@@ -64,6 +64,39 @@
         </div>
     </div>
 
+    {% if activity.weather %}
+    <h2>Condizioni Meteo</h2>
+    <div class="detail-grid">
+        {% if activity.weather.temperature %}
+        <div class="detail-item">
+            <div class="detail-label">Temperatura</div>
+            <div class="detail-value">{{ activity.weather.temperature }}°C</div>
+        </div>
+        {% endif %}
+
+        {% if activity.weather.feels_like %}
+        <div class="detail-item">
+            <div class="detail-label">Temperatura Percepita</div>
+            <div class="detail-value">{{ activity.weather.feels_like }}°C</div>
+        </div>
+        {% endif %}
+
+        {% if activity.weather.humidity %}
+        <div class="detail-item">
+            <div class="detail-label">Umidità</div>
+            <div class="detail-value">{{ activity.weather.humidity }}%</div>
+        </div>
+        {% endif %}
+
+        {% if activity.weather.wind_speed %}
+        <div class="detail-item">
+            <div class="detail-label">Velocità Vento</div>
+            <div class="detail-value">{{ activity.weather.wind_speed }} m/s</div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
     {% if samples %}
     <div class="chart-container">
         <h2>Frequenza Cardiaca</h2>

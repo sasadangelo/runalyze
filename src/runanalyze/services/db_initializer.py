@@ -2,6 +2,7 @@
 from runanalyze.core.database import db_manager
 from runanalyze.models.activity import ActivityDAO  # noqa: F401
 from runanalyze.models.activity_sample import ActivitySampleDAO  # noqa: F401
+from runanalyze.models.activity_weather import ActivityWeatherDAO  # noqa: F401
 from runanalyze.models.base import Base
 from runanalyze.models.daily_metrics import DailyMetricsDAO  # noqa: F401
 

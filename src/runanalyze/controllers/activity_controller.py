@@ -4,7 +4,12 @@
 # -----------------------------------------------------------------------------
 """Controller layer for activity-related HTTP request handling."""
 
+from typing import TYPE_CHECKING
+
 from flask import jsonify, render_template
+
+if TYPE_CHECKING:
+    pass
 
 from runanalyze.services.activity_service import ActivityService
 
@@ -20,7 +25,7 @@ class ActivityController:
         Returns:
             Rendered index.html template
         """
-        return render_template("index.html")
+        return render_template(template_name_or_list="index.html")
 
     @staticmethod
     def list_activities():
@@ -31,7 +36,7 @@ class ActivityController:
             Rendered activities.html template with activities data
         """
         activities_data = ActivityService.get_all_activities()
-        return render_template("activities.html", activities=activities_data)
+        return render_template(template_name_or_list="activities.html", activities=activities_data)
 
     @staticmethod
     def show_activity_detail(activity_id: int) -> str | tuple[str, int]:
@@ -51,7 +56,9 @@ class ActivityController:
 
         samples_data = ActivityService.get_activity_samples(activity_id)
 
-        return render_template("activity_detail.html", activity=activity_data, samples=samples_data)
+        return render_template(
+            template_name_or_list="activity_detail.html", activity=activity_data, samples=samples_data
+        )
 
     @staticmethod
     def get_activity_samples_api(activity_id: int):
@@ -66,6 +73,3 @@ class ActivityController:
         """
         samples_data = ActivityService.get_activity_samples(activity_id)
         return jsonify(samples_data)
-
-
-# Made with Bob

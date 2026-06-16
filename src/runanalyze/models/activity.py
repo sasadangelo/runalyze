@@ -28,5 +28,17 @@ class ActivityDAO(Base):
 
     # Relazione con i dettagli secondo per secondo
     samples = relationship(
-        "ActivitySampleDAO", back_populates="activity", cascade="all, delete-orphan", passive_deletes=True
+        "ActivitySampleDAO",
+        back_populates="activity",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    # Relazione con i dati meteo
+    weather = relationship(
+        "ActivityWeatherDAO",
+        back_populates="activity",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        uselist=False,
     )

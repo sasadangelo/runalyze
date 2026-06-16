@@ -200,6 +200,16 @@ class ActivityService:
         max_hr = ActivityService._round_float(activity.max_hr, 0)
         calories = ActivityService._round_float(activity.calories, 0)
 
+        # Format weather data if available
+        weather_data = None
+        if activity.weather:
+            weather_data = {
+                "temperature": ActivityService._round_float(activity.weather.temperature, 1),
+                "feels_like": ActivityService._round_float(activity.weather.feels_like, 1),
+                "humidity": ActivityService._round_float(activity.weather.humidity, 0),
+                "wind_speed": ActivityService._round_float(activity.weather.wind_speed, 1),
+            }
+
         return {
             "id": activity.id,
             "name": activity.name,
@@ -213,6 +223,7 @@ class ActivityService:
             "max_hr": max_hr,
             "calories": calories if calories is not None else 0.0,
             "avg_speed_m_s": ActivityService._as_float(activity.avg_speed_m_s),
+            "weather": weather_data,
         }
 
     @staticmethod

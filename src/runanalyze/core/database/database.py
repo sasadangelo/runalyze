@@ -2,24 +2,27 @@
 # Copyright (c) 2025 Salvatore D'Angelo, Code4Projects
 # Licensed under the MIT License. See LICENSE.md for details.
 # -----------------------------------------------------------------------------
+
+
 from collections.abc import Generator
 from contextlib import contextmanager
+from pathlib import Path
 
 from sqlalchemy import create_engine, event
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
 # Importiamo l'istanza di configurazione globale creata con Pydantic
-from runanalyze.core.config import config
+from runanalyze.core.config import SQLiteSettings, config
 
 
 class DatabaseSessionManager:
-    def __init__(self):
+    def __init__(self) -> None:
         # Recuperiamo l'oggetto SQLiteSettings tipizzato da Pydantic
-        sqlite_settings = config.database.sqlite
+        sqlite_settings: SQLiteSettings = config.database.sqlite
 
         # 1. Garantiamo che la directory di destinazione (es. 'data/') esista
-        db_file_path = sqlite_settings.absolute_path
+        db_file_path: Path = sqlite_settings.absolute_path
         db_file_path.parent.mkdir(parents=True, exist_ok=True)
 
         self.database_url = sqlite_settings.database_url

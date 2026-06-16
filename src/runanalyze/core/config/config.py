@@ -56,6 +56,7 @@ class Settings(BaseSettings):
     log: LogSettings = Field(default_factory=LogSettings)
     garmin_email: str = Field(default=..., description="Garmin Connect email (from env)")
     garmin_password: str = Field(default=..., description="Garmin Connect password (from env)")
+    openweathermap_api_key: str = Field(default=..., description="OpenWeatherMap API key (from env)")
 
     class Config:
         """Pydantic configuration."""

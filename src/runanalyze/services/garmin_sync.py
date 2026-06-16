@@ -8,6 +8,8 @@ from runanalyze.core.database import db_manager
 from runanalyze.core.log import LoggerManager
 from runanalyze.models.activity import ActivityDAO
 from runanalyze.models.activity_sample import ActivitySampleDAO
+from runanalyze.models.activity_weather import ActivityWeatherDAO
+from runanalyze.services.weather_service import WeatherService
 
 
 class GarminSyncService:
@@ -17,6 +19,7 @@ class GarminSyncService:
         self.password = os.getenv("GARMIN_PASSWORD")
         self.token_dir = os.path.expanduser(os.getenv("GARMINTOKENS") or "~/.garminconnect")
         self.logger.debug(f"Token directory: {self.token_dir}")
+        self.weather_service = WeatherService()
 
     def _login(self) -> Garmin:
         """Gestisce l'autenticazione con Garmin Connect."""
@@ -68,10 +71,10 @@ class GarminSyncService:
                 vo2max_value = act.get("vO2MaxValue")
                 vo2max = round(vo2max_value, 1) if vo2max_value is not None else None
 
-                new_activity = ActivityDAO(
+                new_activity: ActivityDAO = ActivityDAO(
                     id=activity_id,
                     name=activity_name,
-                    activity_type=act.get("activityType", {}).get("typeKey"),  # Tipo di attività
+                    activity_type=act.get("activityType", {}).get("typeKey"),
                     start_time=start_time,
                     duration_secs=act.get("duration", 0.0),
                     distance_meters=act.get("distance", 0.0),
@@ -79,11 +82,36 @@ class GarminSyncService:
                     max_hr=act.get("maxHR"),
                     calories=act.get("calories", 0.0),
                     avg_speed_m_s=act.get("averageSpeed", 0.0),
-                    tss=tss,  # Training Stress Score (arrotondato a intero)
-                    vo2max=vo2max,  # VO2max (arrotondato a 1 decimale)
+                    tss=tss,
+                    vo2max=vo2max,
                 )
-                session.add(new_activity)
+                session.add(instance=new_activity)
                 self.logger.debug(f"Added activity {activity_id} to session")
+
+                # Fetch weather data if GPS coordinates are available
+                start_lat = act.get("startLatitude")
+                start_lon = act.get("startLongitude")
+                if start_lat is not None and start_lon is not None and start_time is not None:
+                    try:
+                        start_datetime = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+                        weather_data = self.weather_service.get_weather_data(
+                            latitude=start_lat,
+                            longitude=start_lon,
+                            timestamp=start_datetime,
+                        )
+
+                        if weather_data:
+                            weather_record = ActivityWeatherDAO(
+                                activity_id=activity_id,
+                                temperature=weather_data.get("temperature"),
+                                feels_like=weather_data.get("feels_like"),
+                                humidity=weather_data.get("humidity"),
+                                wind_speed=weather_data.get("wind_speed"),
+                            )
+                            session.add(weather_record)
+                            self.logger.debug(f"Added weather data for activity {activity_id}")
+                    except Exception as e:
+                        self.logger.warning(f"Failed to fetch weather for activity {activity_id}: {e}")
 
                 # Scaricamento metriche di dettaglio secondo per secondo
                 try:
