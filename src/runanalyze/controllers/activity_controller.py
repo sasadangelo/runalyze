@@ -56,8 +56,14 @@ class ActivityController:
 
         samples_data = ActivityService.get_activity_samples(activity_id)
 
+        # Calculate aerobic decoupling metrics
+        decoupling_data = ActivityService.calculate_aerobic_decoupling(activity_id)
+
         return render_template(
-            template_name_or_list="activity_detail.html", activity=activity_data, samples=samples_data
+            template_name_or_list="activity_detail.html",
+            activity=activity_data,
+            samples=samples_data,
+            decoupling=decoupling_data,
         )
 
     @staticmethod

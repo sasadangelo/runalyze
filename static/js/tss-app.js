@@ -3,6 +3,7 @@ import { DataUtils } from './data-utils.js';
 
 export class TSSApp {
     constructor() {
+        console.log('TSSApp constructor called');
         this.allData = [];
         this.chart = new TSSChart(document.getElementById('tssChart').getContext('2d'));
 
@@ -15,9 +16,11 @@ export class TSSApp {
 
     async loadData() {
         try {
+            console.log('Loading TSS data from API...');
             // Fetch all training data without date filters to get complete dataset
             const response = await fetch('/api/training');
             const data = await response.json();
+            console.log('TSS data loaded:', data.length, 'records');
 
             this.allData = data.map(item => ({
                 date: item.date,
@@ -31,10 +34,15 @@ export class TSSApp {
     }
 
     processData() {
-        if (this.allData.length === 0) return;
+        console.log('TSSApp processData called, data length:', this.allData.length);
+        if (this.allData.length === 0) {
+            console.log('No data to process yet');
+            return;
+        }
 
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
+        console.log('Processing data for date range:', startDate, 'to', endDate);
 
         // Filtra i dati per il range di date specificato
         const filteredData = this.allData.filter(row => {
@@ -48,6 +56,7 @@ export class TSSApp {
         const minValue = 0;
         const maxValue = Math.ceil(Math.max(...filteredTssValues) / 10) * 10;
 
+        console.log('Creating TSS chart with', filteredDates.length, 'data points');
         // Crea il grafico con i dati filtrati
         this.chart.createChart(filteredDates, filteredTssValues, minValue, maxValue);
     }

@@ -3,6 +3,7 @@ import { DataUtils } from './data-utils.js';
 
 export class FCRApp {
     constructor() {
+        console.log('FCRApp constructor called');
         this.allData = [];
         this.chart = new FCRChart(document.getElementById('fcrChart').getContext('2d'));
 
@@ -15,9 +16,11 @@ export class FCRApp {
 
     async loadData() {
         try {
+            console.log('Loading FCR data from API...');
             // Fetch all resting HR data without date filters to get complete dataset
             const response = await fetch('/api/resting-hr');
             const data = await response.json();
+            console.log('FCR data loaded:', data.length, 'records');
 
             this.allData = data.map(item => ({
                 date: item.date,
@@ -31,10 +34,15 @@ export class FCRApp {
     }
 
     processData() {
-        if (this.allData.length === 0) return;
+        console.log('FCRApp processData called, data length:', this.allData.length);
+        if (this.allData.length === 0) {
+            console.log('No data to process yet');
+            return;
+        }
 
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
+        console.log('Processing data for date range:', startDate, 'to', endDate);
 
         // Calcola i valori per l'intera serie storica
         const allDates = this.allData.map(row => row.date);
@@ -78,6 +86,7 @@ export class FCRApp {
         const filteredUpperLimits = allUpperLimits.slice(startIndex, endIndex);
         const filteredLowerLimits = allLowerLimits.slice(startIndex, endIndex);
 
+        console.log('Creating FCR chart with', filteredDates.length, 'data points');
         // Crea il grafico con i dati filtrati
         this.chart.createChart(filteredDates, filteredFcrValues, filteredUpperLimits, filteredLowerLimits, filteredMovingAvg7, minValue, maxValue);
     }

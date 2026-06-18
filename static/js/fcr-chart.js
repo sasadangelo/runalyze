@@ -86,6 +86,18 @@ export class FCRChart {
                         max: maxValue
                     }
                 }
+            },
+            plugins: {
+                zoom: {
+                    zoom: {
+                        enabled: true,
+                        mode: 'x'
+                    },
+                    pan: {
+                        enabled: true,
+                        mode: 'x'
+                    }
+                }
             }
         });
     }

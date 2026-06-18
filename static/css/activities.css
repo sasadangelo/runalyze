@@ -102,4 +102,20 @@
     }
 }
 
+/* Aerobic Decoupling Colors */
+.decoupling-green {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.decoupling-yellow {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.decoupling-red {
+    color: #dc3545;
+    font-weight: bold;
+}
+
 /* Made with Bob */

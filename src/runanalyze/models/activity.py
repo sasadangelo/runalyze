@@ -25,6 +25,8 @@ class ActivityDAO(Base):
     # Metriche di allenamento
     tss = Column(Float, nullable=True)  # Training Stress Score (arrotondato a intero)
     vo2max = Column(Float, nullable=True)  # VO2max (arrotondato a 1 decimale)
+    aerobic_decoupling = Column(Float, nullable=True)  # Aerobic Decoupling standard (HR/Pace ratio)
+    aerobic_decoupling_pure = Column(Float, nullable=True)  # Aerobic Decoupling pure (solo HR drift)
 
     # Relazione con i dettagli secondo per secondo
     samples = relationship(

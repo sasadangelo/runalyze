@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from runanalyze.core.config import config
 from runanalyze.core.log import LoggerManager, setup_logging
 from runanalyze.services import DatabaseInitializer, GarminSyncService
+from runanalyze.services.daily_metrics_sync import DailyMetricsSyncService
 
 
 def bootstrap_application() -> None:
@@ -47,6 +48,12 @@ def main() -> None:
         start_date: date = datetime(year=2026, month=2, day=1).date()
         logger.info(f"Synchronizing activities from {start_date.isoformat()}")
         sync_service.synchronize(start_date=start_date)
+
+        # Sincronizzazione delle metriche giornaliere (HRV, Resting HR, VO2max)
+        logger.info("Starting daily metrics synchronization service...")
+        daily_metrics_sync: DailyMetricsSyncService = DailyMetricsSyncService()
+        logger.info(f"Synchronizing daily metrics from {start_date.isoformat()}")
+        daily_metrics_sync.synchronize(start_date=start_date)
 
         logger.info("Application completed successfully")
 

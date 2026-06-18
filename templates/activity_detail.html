@@ -64,6 +64,40 @@
         </div>
     </div>
 
+    {% if decoupling and (decoupling.aerobic_decoupling is not none or decoupling.aerobic_decoupling_pure is not none)
+    %}
+    <h2>Aerobic Decoupling</h2>
+    <div class="detail-grid">
+        {% if decoupling.aerobic_decoupling is not none %}
+        <div class="detail-item">
+            <div class="detail-label">Aerobic Decoupling</div>
+            <div class="detail-value">
+                {% set ad_value = decoupling.aerobic_decoupling %}
+                {% if ad_value < 5 %} <span class="decoupling-green">{{ "%.2f"|format(ad_value) }}%</span>
+                    {% elif ad_value < 10 %} <span class="decoupling-yellow">{{ "%.2f"|format(ad_value) }}%</span>
+                        {% else %}
+                        <span class="decoupling-red">{{ "%.2f"|format(ad_value) }}%</span>
+                        {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if decoupling.aerobic_decoupling_pure is not none %}
+        <div class="detail-item">
+            <div class="detail-label">Aerobic Decoupling Pure (HR Only)</div>
+            <div class="detail-value">
+                {% set adp_value = decoupling.aerobic_decoupling_pure %}
+                {% if adp_value < 5 %} <span class="decoupling-green">{{ "%.2f"|format(adp_value) }}%</span>
+                    {% elif adp_value < 10 %} <span class="decoupling-yellow">{{ "%.2f"|format(adp_value) }}%</span>
+                        {% else %}
+                        <span class="decoupling-red">{{ "%.2f"|format(adp_value) }}%</span>
+                        {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
     {% if activity.weather %}
     <h2>Condizioni Meteo</h2>
     <div class="detail-grid">
