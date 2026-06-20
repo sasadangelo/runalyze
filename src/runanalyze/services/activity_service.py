@@ -140,6 +140,80 @@ class ActivityService:
         return None
 
     @staticmethod
+    def _calculate_temperature_adjustment(temperature: float | None) -> float:
+        """
+        Calculate pace adjustment factor based on temperature.
+
+        Based on research showing performance degradation at non-optimal temperatures.
+        Optimal temperature range: 10-15°C
+
+        Args:
+            temperature: Temperature in Celsius
+
+        Returns:
+            Adjustment factor (1.0 = no adjustment, >1.0 = slower pace expected)
+        """
+        if temperature is None:
+            return 1.0
+
+        # Optimal temperature range (no adjustment needed)
+        optimal_temp_low = 10.0
+        optimal_temp_high = 15.0
+
+        if optimal_temp_low <= temperature <= optimal_temp_high:
+            return 1.0
+
+        # Temperature is below optimal range (cold)
+        if temperature < optimal_temp_low:
+            # For every degree below 10°C, add 0.5% slowdown
+            temp_diff = optimal_temp_low - temperature
+            adjustment = 1.0 + (temp_diff * 0.005)
+            return min(adjustment, 1.10)  # Cap at 10% slowdown
+
+        # Temperature is above optimal range (hot)
+        # Heat has more impact than cold
+        temp_diff = temperature - optimal_temp_high
+
+        # For every degree above 15°C up to 25°C, add 0.5% slowdown
+        # Above 25°C: Base 5% for first 10 degrees, then 0.5% per degree above 25°C
+        adjustment = 1.0 + temp_diff * 0.005 if temp_diff <= 10 else 1.05 + (temp_diff - 10) * 0.005
+
+        return min(adjustment, 1.15)  # Cap at 15% slowdown for extreme heat
+
+    @staticmethod
+    def _calculate_adjusted_pace(speed_m_s: float, temperature: float | None) -> str:
+        """
+        Calculate temperature-adjusted pace in min/km format.
+
+        This represents the pace you would have run at optimal temperature (10-15°C).
+        If you ran slower due to heat/cold, this shows your faster "equivalent" pace.
+
+        Args:
+            speed_m_s: Actual speed in meters per second
+            temperature: Temperature in Celsius
+
+        Returns:
+            Adjusted pace string in format "MM:SS" or "N/A" if speed is 0
+        """
+        if speed_m_s <= 0:
+            return "N/A"
+
+        # Get temperature adjustment factor
+        adjustment_factor = ActivityService._calculate_temperature_adjustment(temperature)
+
+        # Calculate adjusted speed (what speed would be at optimal temperature)
+        # If adjustment is 1.09 (9% slower due to heat), you would be 9% faster at optimal temp
+        # So multiply speed by adjustment factor to get the faster optimal speed
+        adjusted_speed = speed_m_s * adjustment_factor
+
+        # Convert to pace (faster speed = lower pace number)
+        pace_min_per_km = 1000 / (adjusted_speed * 60)
+        pace_minutes = int(pace_min_per_km)
+        pace_seconds = int((pace_min_per_km - pace_minutes) * 60)
+
+        return f"{pace_minutes}:{pace_seconds:02d}"
+
+    @staticmethod
     def _format_duration(duration_secs: float) -> str:
         """
         Format duration in seconds to readable string.
@@ -173,6 +247,15 @@ class ActivityService:
         avg_hr = ActivityService._round_float(activity.avg_hr, 0)
         calories = ActivityService._round_float(activity.calories, 0)
 
+        # Get temperature for adjusted pace calculation
+        # Prefer feels_like (perceived temperature) as it accounts for humidity and wind
+        temperature = None
+        if activity.weather:
+            if activity.weather.feels_like is not None:
+                temperature = ActivityService._as_float(activity.weather.feels_like)
+            elif activity.weather.temperature is not None:
+                temperature = ActivityService._as_float(activity.weather.temperature)
+
         return {
             "id": activity.id,
             "name": activity.name,
@@ -180,6 +263,9 @@ class ActivityService:
             "distance_km": distance_km if distance_km is not None else 0.0,
             "duration": ActivityService._format_duration(ActivityService._as_float(activity.duration_secs)),
             "pace": ActivityService._calculate_pace(ActivityService._as_float(activity.avg_speed_m_s)),
+            "pace_adjusted": ActivityService._calculate_adjusted_pace(
+                ActivityService._as_float(activity.avg_speed_m_s), temperature
+            ),
             "avg_hr": avg_hr if avg_hr is not None else "N/A",
             "calories": calories if calories is not None else 0.0,
         }
@@ -201,8 +287,15 @@ class ActivityService:
         calories = ActivityService._round_float(activity.calories, 0)
 
         # Format weather data if available
+        # Prefer feels_like (perceived temperature) as it accounts for humidity and wind
         weather_data = None
+        temperature = None
         if activity.weather:
+            if activity.weather.feels_like is not None:
+                temperature = ActivityService._as_optional_float(activity.weather.feels_like)
+            elif activity.weather.temperature is not None:
+                temperature = ActivityService._as_optional_float(activity.weather.temperature)
+
             weather_data = {
                 "temperature": ActivityService._round_float(activity.weather.temperature, 1),
                 "feels_like": ActivityService._round_float(activity.weather.feels_like, 1),
@@ -219,6 +312,10 @@ class ActivityService:
             "duration": ActivityService._format_duration(ActivityService._as_float(activity.duration_secs)),
             "duration_secs": ActivityService._as_float(activity.duration_secs),
             "pace": ActivityService._calculate_pace(ActivityService._as_float(activity.avg_speed_m_s)),
+            "pace_adjusted": ActivityService._calculate_adjusted_pace(
+                ActivityService._as_float(activity.avg_speed_m_s), temperature
+            ),
+            "temperature_adjustment_factor": ActivityService._calculate_temperature_adjustment(temperature),
             "avg_hr": avg_hr,
             "max_hr": max_hr,
             "calories": calories if calories is not None else 0.0,
@@ -327,7 +424,7 @@ class ActivityService:
     @staticmethod
     def _calculate_decoupling_with_pace(samples: list[ActivitySampleDAO]) -> float | None:
         """
-        Calculate aerobic decoupling using HR/Pace ratio.
+        Calculate aerobic decoupling using Speed/HR ratio (aerobic efficiency).
 
         Args:
             samples: List of valid activity samples
@@ -343,33 +440,34 @@ class ActivityService:
         first_half = samples[:mid_point]
         second_half = samples[mid_point:]
 
-        # Calculate average HR and pace for each half
+        # Calculate average HR and speed for each half
         first_hr_avg = float(sum(cast(int, s.heart_rate) for s in first_half)) / len(first_half)
-        first_pace_avg = sum(
-            ActivityService._calculate_instant_pace(ActivityService._as_optional_float(s.speed_m_s)) or 0
-            for s in first_half
-        ) / len(first_half)
+        first_speed_avg = sum(ActivityService._as_optional_float(s.speed_m_s) or 0 for s in first_half) / len(
+            first_half
+        )
 
         second_hr_avg = float(sum(cast(int, s.heart_rate) for s in second_half)) / len(second_half)
-        second_pace_avg = sum(
-            ActivityService._calculate_instant_pace(ActivityService._as_optional_float(s.speed_m_s)) or 0
-            for s in second_half
-        ) / len(second_half)
+        second_speed_avg = sum(ActivityService._as_optional_float(s.speed_m_s) or 0 for s in second_half) / len(
+            second_half
+        )
 
         # Avoid division by zero
-        if first_pace_avg == 0 or second_pace_avg == 0:
+        if first_hr_avg == 0 or second_hr_avg == 0:
             return None
 
-        # Calculate efficiency ratio (HR / Pace) for each half
-        first_efficiency = first_hr_avg / first_pace_avg
-        second_efficiency = second_hr_avg / second_pace_avg
+        # Calculate aerobic efficiency (Speed / HR) for each half
+        # Higher efficiency = more speed with less heart rate
+        first_efficiency = first_speed_avg / first_hr_avg
+        second_efficiency = second_speed_avg / second_hr_avg
 
         # Avoid division by zero
         if first_efficiency == 0:
             return None
 
         # Calculate decoupling percentage
-        decoupling = ((second_efficiency - first_efficiency) / first_efficiency) * 100
+        # Positive value = efficiency decreased (decoupling/fatigue)
+        # Negative value = efficiency increased (rare, improvement)
+        decoupling = ((first_efficiency - second_efficiency) / first_efficiency) * 100
 
         return round(float(decoupling), 2)
 

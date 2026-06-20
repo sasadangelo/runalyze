@@ -39,6 +39,21 @@
             <div class="detail-value">{{ activity.pace }} min/km</div>
         </div>
 
+        {% if activity.pace_adjusted and activity.pace_adjusted != activity.pace %}
+        <div class="detail-item">
+            <div class="detail-label">Passo Medio (Corr. Temperatura)</div>
+            <div class="detail-value" style="color: #28a745; font-weight: 500;"
+                title="Passo che avresti mantenuto a temperatura ottimale (10-15°C)">
+                {{ activity.pace_adjusted }} min/km
+                {% if activity.temperature_adjustment_factor %}
+                <small style="display: block; color: #666; font-weight: normal; margin-top: 4px;">
+                    (fattore: {{ "%.2f"|format(activity.temperature_adjustment_factor) }}x)
+                </small>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
         {% if activity.avg_hr %}
         <div class="detail-item">
             <div class="detail-label">FC Media</div>

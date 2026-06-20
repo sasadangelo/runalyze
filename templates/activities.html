@@ -20,6 +20,7 @@
             <th>Distanza (km)</th>
             <th>Tempo</th>
             <th>Passo Medio</th>
+            <th>Passo Medio<br>(Corr. Temperatura)</th>
             <th>FC Media</th>
             <th>Calorie</th>
         </tr>
@@ -33,6 +34,14 @@
             <td>{{ activity.distance_km }}</td>
             <td>{{ activity.duration }}</td>
             <td>{{ activity.pace }} min/km</td>
+            <td title="Passo che avresti mantenuto a temperatura ottimale (10-15°C)">
+                {% if activity.pace_adjusted and activity.pace_adjusted != activity.pace %}
+                <span style="color: #28a745; font-weight: 500;">{{ activity.pace_adjusted }}</span>
+                {% else %}
+                {{ activity.pace }}
+                {% endif %}
+                min/km
+            </td>
             <td>{{ activity.avg_hr }} bpm</td>
             <td>{{ activity.calories }}</td>
         </tr>

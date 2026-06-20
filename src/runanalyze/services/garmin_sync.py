@@ -1,5 +1,6 @@
 import os
 from datetime import date, datetime
+from zoneinfo import ZoneInfo
 
 from garminconnect import Garmin
 from sqlalchemy import exists
@@ -93,7 +94,15 @@ class GarminSyncService:
                 start_lon = act.get("startLongitude")
                 if start_lat is not None and start_lon is not None and start_time is not None:
                     try:
-                        start_datetime = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+                        # startTimeLocal is in local time, not UTC
+                        # Parse it as naive datetime and treat it as local time
+                        start_datetime = datetime.fromisoformat(start_time.replace("Z", ""))
+                        # If the datetime is naive (no timezone), assume it's in local time
+                        if start_datetime.tzinfo is None:
+                            # Get the system timezone (Europe/Rome in this case)
+                            local_tz = ZoneInfo("Europe/Rome")
+                            start_datetime = start_datetime.replace(tzinfo=local_tz)
+
                         weather_data = self.weather_service.get_weather_data(
                             latitude=start_lat,
                             longitude=start_lon,
